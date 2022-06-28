@@ -1,6 +1,6 @@
 # munin-litespeed
 
-A set of munin-plugins to monitor LiteSpeed updated for CentOS 7.
+Improved set of munin-plugins to monitor LiteSpeed.
 
 Forked from https://github.com/burner1024/munin-litespeed
 
@@ -26,22 +26,20 @@ Written by Alex S Grebenschikov (www.poralix.com):
 Simple if you have `git` installed:
 
 ```
-cd /etc/munin/plugins
-git clone https://github.com/poralix/munin-litespeed.git
-mv munin-litespeed/litespeed_* .
-rm -rf munin-litespeed/
-chmod 755 litespeed_*
+git clone https://github.com/dreamwebhost/munin-litespeed.git
+cp munin-litespeed/litespeed_* /etc/munin/plugins
+chmod 755 /etc/munin/plugins/litespeed_*
 service munin-node restart
 ```
 
 # Configuration
 
-Might need to add
+Might need to add (for litespeed_requests_post plugin)
 
 ```
-[litespeed_*]
+[litespeed_requests_post]
 # env.log   /var/log/httpd/domains/*.log
 user root
 ```
 
-to `/etc/munin/plugin-conf.d/munin-node`
+to `/etc/munin/plugin-conf.d/litespeed`
