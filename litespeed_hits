@@ -4,7 +4,7 @@
 # Written by Alex S Grebenschikov (www.poralix.com)
 # Created at: Mon Apr  8 10:57:04 CEST 2019
 ########################################################
-# 2022-06-28 - Improved by Dejan D. (www.dreamweb.rs)
+# 2022-06-28 - Improved by Dejan (www.dreamweb.rs)
 ########################################################
 
 if ( $ARGV[0] eq 'autoconf' ) {
