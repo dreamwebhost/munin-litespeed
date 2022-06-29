@@ -7,6 +7,9 @@
 # To work under CentOS Linux release 7
 # www.poralix.com
 ##################################################
+# 2022-06-28 - Improved by Dejan (www.dreamweb.rs)
+##################################################
+
 if ( $ARGV[0] eq 'autoconf' ) {
    if ( -e '/dev/shm/lsws/status/.rtreport' ) {
       print "yes\n";
@@ -40,13 +43,14 @@ if ( ! -e '/dev/shm/lsws/status/.rtreport' ) {
 foreach $rep ( @stats ) {
    open IN, "<$rep";
    while ( <IN> ) {
-      if ( /^BPS_IN: (\d+), BPS_OUT: (\d+),/ ) {
-         $bpsin += $1;
-         $bpsout += $2;
+      if ( /^BPS_IN: (\d+), BPS_OUT: (\d+), SSL_BPS_IN: (\d+), SSL_BPS_OUT: (\d+)/ ) {
+         $bpsin += $1 + $3;
+         $bpsout += $2 + $4;
          last;
       }
    }
    close IN;
 }
-print "bpsout.value $bpsout\nbpsin.value $bpsin\n";
+print "bpsout.value $bpsout\n";
+print "bpsin.value $bpsin\n";
 exit;
