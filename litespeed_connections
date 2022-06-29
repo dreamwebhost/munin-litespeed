@@ -6,6 +6,9 @@
 # To work under CentOS Linux release 7
 # www.poralix.com
 ##################################################
+# 2022-06-29 - Improved by Dejan (www.dreamweb.rs)
+##################################################
+
 if ( $ARGV[0] eq 'autoconf' ) {
    if ( -e '/dev/shm/lsws/status/.rtreport' ) {
       print "yes\n";
@@ -19,27 +22,44 @@ if ( $ARGV[0] eq 'autoconf' ) {
 if ( $ARGV[0] eq 'config' ) {
    open IN, "</dev/shm/lsws/status/.rtreport";
    while ( <IN> ) {
-      if ( /^MAXCONN: (\d+),/ ) {
+      if ( /^MAXCONN: (\d+), MAXSSL_CONN: (\d+),/ ) {
          $max = $1;
+         $maxssl = $2;
          last;
       }
    }
    close IN;
-   print "graph_title Litespeed : connections (max. $max)\n";
+
+   $maxwarning = $max * 0.85;
+   $maxcritical = $max * 0.95;
+   $maxsslwarning = $maxssl * 0.85;
+   $maxsslcritical = $maxssl * 0.95;
+
+   print "graph_title Litespeed : connections (max plain: $max, max ssl: $maxssl)\n";
    print "graph_args --base 1000 -l 0\n";
    print "graph_scale no\n";
    print "graph_vlabel connections\n";
    print "graph_category litespeed\n";
-   print "graph_order used idle\n";
-   print "used.label used\n";
+   print "graph_order used usedssl idle\n";
+
+   print "used.label Plain used\n";
    print "used.draw AREA\n";
-   print "idle.label idle\n";
-   print "idle.draw LINE1\n";
+   print "usedssl.label SSL used\n";
+   print "usedssl.draw STACK\n";
+   print "idle.label Idle\n";
+   print "idle.draw STACK\n";
+
+   print "used.warning $maxwarning\n";
+   print "used.critical $maxcritical\n";
+   print "usedssl.warning $maxsslwarning\n";
+   print "usedssl.critical $maxsslcritical\n";
+
    exit 0;
 }
 
 if ( ! -e '/dev/shm/lsws/status/.rtreport' ) {
    print "used.value 0\n";
+   print "usedssl.value 0\n";
    print "idle.value 0\n";
    exit;
 }
@@ -48,13 +68,16 @@ if ( ! -e '/dev/shm/lsws/status/.rtreport' ) {
 foreach $rep ( @stats ) {
    open IN, "<$rep";
    while ( <IN> ) {
-      if ( /PLAINCONN: (\d+), AVAILCONN: \d+, IDLECONN: (\d+),/ ) {
+      if ( /PLAINCONN: (\d+), AVAILCONN: \d+, IDLECONN: (\d+), SSLCONN: (\d+), AVAILSSL: (\d+)/ ) {
          $used += $1;
+         $usedssl += $3;
          $idle += $2;
          last;
       }
    }
    close IN;
 }
-print "used.value $used\nidle.value $idle\n";
+print "used.value $used\n";
+print "usedssl.value $usedssl\n";
+print "idle.value $idle\n";
 exit;
