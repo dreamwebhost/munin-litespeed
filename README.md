@@ -24,17 +24,26 @@ ln -s /usr/local/munin/lib/plugins/litespeed_throughtput /etc/munin/plugins/lite
 # optional plugin to count POST request in access log file
 ln -s /usr/local/munin/lib/plugins/litespeed_requests_post /etc/munin/plugins/litespeed_requests_post
 
-service munin-node restart
 ```
 
 # Configuration
+
+Create file `/etc/munin/plugin-conf.d/litespeed` and add the folowing...
+
+```
+[litespeed_*]
+user nobody
+```
 
 Might need to configure logs path (only for litespeed_requests_post plugin)
 
 ```
 [litespeed_requests_post]
-# env.log   /var/log/httpd/domains/*.log
-user root
+env.log   /var/log/httpd/domains/*.log
+user nobody
 ```
 
-If needed, add this to `/etc/munin/plugin-conf.d/litespeed` and restart munin-node
+# Restart
+```
+service munin-node restart
+```
