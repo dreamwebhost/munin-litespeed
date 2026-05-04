@@ -6,8 +6,10 @@
 # To work under CentOS Linux release 7
 # www.poralix.com
 ##################################################
-# 2022-06-29 - Improved by Dejan (www.dreamweb.rs)
+# 2022-2026 - Improved by Dejan (www.dreamweb.rs)
 ##################################################
+
+@stats = `ls -a /dev/shm/lsws/status/.rtreport*`;
 
 if ( $ARGV[0] eq 'autoconf' ) {
    if ( -e '/dev/shm/lsws/status/.rtreport' ) {
@@ -20,20 +22,23 @@ if ( $ARGV[0] eq 'autoconf' ) {
 }
 
 if ( $ARGV[0] eq 'config' ) {
-   open IN, "</dev/shm/lsws/status/.rtreport";
-   while ( <IN> ) {
-      if ( /^MAXCONN: (\d+), MAXSSL_CONN: (\d+),/ ) {
-         $max = $1;
-         $maxssl = $2;
-         last;
-      }
-   }
-   close IN;
 
-   $maxwarning = $max * 0.85;
-   $maxcritical = $max * 0.95;
-   $maxsslwarning = $maxssl * 0.85;
-   $maxsslcritical = $maxssl * 0.95;
+   foreach $rep ( @stats ) {
+      open IN, "<$rep";
+      while ( <IN> ) {
+         if ( /^MAXCONN: (\d+), MAXSSL_CONN: (\d+),/ ) {
+            $max += $1;
+            $maxssl += $2;
+            last;
+         }
+      }
+      close IN;
+   }
+
+   $maxwarning = $max * 0.8;
+   $maxcritical = $max * 0.9;
+   $maxsslwarning = $maxssl * 0.8;
+   $maxsslcritical = $maxssl * 0.9;
 
    print "graph_title Litespeed : connections (max plain: $max, max ssl: $maxssl)\n";
    print "graph_args --base 1000 -l 0\n";
@@ -64,7 +69,6 @@ if ( ! -e '/dev/shm/lsws/status/.rtreport' ) {
    exit;
 }
 
-@stats = `ls -a /dev/shm/lsws/status/.rtreport*`;
 foreach $rep ( @stats ) {
    open IN, "<$rep";
    while ( <IN> ) {
